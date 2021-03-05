@@ -45,6 +45,7 @@ const Room = (props) => {
         socketRef.current = io.connect("/");
         navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: true }).then(stream => {
             userVideo.current.srcObject = stream;
+            console.log(userVideo)
             socketRef.current.emit("join room", roomID);
             socketRef.current.on("all users", users => {
                 const peers = [];
@@ -109,12 +110,12 @@ const Room = (props) => {
 
     const togglMute = () => {
         set_micMute(prev => prev ? false : true)
-        userVideo.current.getAudioTracks()[0].enabled = !(userVideo.current.getAudioTracks()[0].enabled);      
+        userVideo.current.srcObject.getAudioTracks()[0].enabled = !(userVideo.current.srcObject.getAudioTracks()[0].enabled);      
     }
 
     const toggleVideo = () => {
         set_vidMute(prev => prev ? false : true)
-        userVideo.current.getVideoTracks()[0].enabled = !(userVideo.current.getVideoTracks()[0].enabled);
+        userVideo.current.srcObject.getVideoTracks()[0].enabled = !(userVideo.current.srcObject.getVideoTracks()[0].enabled);
     }
 
     return (

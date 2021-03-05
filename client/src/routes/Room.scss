@@ -27,8 +27,9 @@
         flex-wrap: wrap;
         margin-top: 16%;
         video{
-            width: 40%;
-            height: 45%;
+            width: 30%;
+            height: 40%;
+            border-radius: 10px;
         }
     }
 
@@ -41,7 +42,7 @@
         justify-self: center;
         align-items: center;
         z-index: 1000;
-        border: 1px solid green;
+        //border: 1px solid green;
         div{
             z-index: 10001;
             font-size: 2.8rem;
