@@ -1,37 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
-import styled from "styled-components";
 import {BsMicFill, BsMicMuteFill, BsCameraVideo} from 'react-icons/bs';
 import {BiVideoOff} from 'react-icons/bi';
-
-const Container = styled.div`
-    padding: 0px;
-    display: flex;
-    height: 100vh;
-    width: 90%;
-    margin: auto;
-    flex-wrap: wrap;
-    background:#333;
-`;
-
-const StyledVideo = styled.video`
-    height: 40%;
-    width: 50%;
-    border:1px solid #00b1b1;
-`;
-
-const ActionBtn = styled.div`
-    border: none;
-    font-size: 3rem;
-    color: #fff;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-`
+import './Room.css';
 
 const Video = (props) => {
-
     //eslint-disable-next-line
     const [muted, set_muted] = useState(false)
     //eslint-disable-next-line
@@ -46,12 +20,7 @@ const Video = (props) => {
     }, []);
 
     return (
-        <>
-            <StyledVideo autoPlay playsInline ref={ref} />
-            <ActionBtn>{muted ? <BsMicMuteFill/> : <BsMicFill/>}</ActionBtn>
-            <ActionBtn>{vidMute ? <BiVideoOff/> : <BsCameraVideo/>}</ActionBtn>
-        </>
-
+        <video autoPlay playsInline ref={ref}></video>
     );
 }
 
@@ -62,6 +31,10 @@ const videoConstraints = {
 };
 
 const Room = (props) => {
+    //eslint-disable-next-line
+    const [micMute, set_micMute] = useState(false);
+    //eslint-disable-next-line
+    const [vidMute, set_vidMute] = useState(false);
     const [peers, setPeers] = useState([]);
     const socketRef = useRef();
     const userVideo = useRef();
@@ -100,8 +73,8 @@ const Room = (props) => {
                 const item = peersRef.current.find(p => p.peerID === payload.id);
                 item.peer.signal(payload.signal);
             });
-        })
-        //eslint-disable-next-line
+        });
+    //eslint-disable-next-line
     }, []);
 
     function createPeer(userToSignal, callerID, stream) {
@@ -135,13 +108,19 @@ const Room = (props) => {
     }
 
     return (
-        <Container>
-            <StyledVideo muted ref={userVideo} autoPlay playsInline />
-            {peers.map((peer, index) => (
-                <Video key={index} peer={peer} />  
-            ))}
-        </Container>
-    );
-};
+        <div className="app_container">
+            <video className="self_video" muted ref={userVideo} autoPlay playsInline></video>
+            <div className="mute_btn">{micMute ? <BsMicMuteFill/> : <BsMicFill/> }</div>
+            <div className="vid_btn">{vidMute ? <BiVideoOff/> : <BsCameraVideo /> }</div>
 
-export default Room;
+
+            <div className="other_video_container">            
+                {peers.map((peer, index) => (
+                    <Video key={index} peer={peer} />  
+                ))}
+            </div>
+        </div>
+    )
+}
+
+export default Room
