@@ -40,9 +40,12 @@
         display: inline-flex;
         justify-self: center;
         align-items: center;
+        z-index: 1000;
+        border: 1px solid green;
         div{
+            z-index: 10001;
             font-size: 2.8rem;
-            color: rgb(51, 51, 51);
+            color: #fff;
             transition: 0.2s linear;
             &:hover{
                 cursor: pointer;
