@@ -10,7 +10,7 @@
     "socket.io": "^3.1.2"
   },
   "scripts": {
-    "start": "PORD=true nodemon server.js",
+    "start": "PORD=true node server.js",
     "postinstall": "cd ./client && yarn"
   }
 }

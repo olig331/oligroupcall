@@ -2,22 +2,40 @@ import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 import styled from "styled-components";
+import {BsMicFill, BsMicMuteFill, BsCameraVideo} from 'react-icons/bs';
+import {BiVideoOff} from 'react-icons/bi';
 
 const Container = styled.div`
-    padding: 20px;
+    padding: 0px;
     display: flex;
     height: 100vh;
     width: 90%;
     margin: auto;
     flex-wrap: wrap;
+    background:#333;
 `;
 
 const StyledVideo = styled.video`
     height: 40%;
     width: 50%;
+    border:1px solid #00b1b1;
 `;
 
+const ActionBtn = styled.div`
+    border: none;
+    font-size: 3rem;
+    color: #fff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+`
+
 const Video = (props) => {
+
+    //eslint-disable-next-line
+    const [muted, set_muted] = useState(false)
+    //eslint-disable-next-line
+    const [vidMute, set_vidMute] = useState(false)
     const ref = useRef();
 
     useEffect(() => {
@@ -28,7 +46,12 @@ const Video = (props) => {
     }, []);
 
     return (
-        <StyledVideo playsInline autoPlay ref={ref} />
+        <>
+            <StyledVideo autoPlay playsInline ref={ref} />
+            <ActionBtn>{muted ? <BsMicMuteFill/> : <BsMicFill/>}</ActionBtn>
+            <ActionBtn>{vidMute ? <BiVideoOff/> : <BsCameraVideo/>}</ActionBtn>
+        </>
+
     );
 }
 
@@ -114,11 +137,9 @@ const Room = (props) => {
     return (
         <Container>
             <StyledVideo muted ref={userVideo} autoPlay playsInline />
-            {peers.map((peer, index) => {
-                return (
-                    <Video key={index} peer={peer} />
-                );
-            })}
+            {peers.map((peer, index) => (
+                <Video key={index} peer={peer} />  
+            ))}
         </Container>
     );
 };
