@@ -107,18 +107,47 @@ const Room = (props) => {
         return peer;
     }
 
+    const togglMute = () => {
+        set_micMute(prev => prev ? false : true)
+        userVideo.current.getAudioTracks()[0].enabled = !(userVideo.current.getAudioTracks()[0].enabled);      
+    }
+
+    const toggleVideo = () => {
+        set_vidMute(prev => prev ? false : true)
+        userVideo.current.getVideoTracks()[0].enabled = !(userVideo.current.getVideoTracks()[0].enabled);
+    }
+
     return (
         <div className="app_container">
+            {/* Users own video */}
             <video className="self_video" muted ref={userVideo} autoPlay playsInline></video>
-            <div className="mute_btn">{micMute ? <BsMicMuteFill/> : <BsMicFill/> }</div>
-            <div className="vid_btn">{vidMute ? <BiVideoOff/> : <BsCameraVideo /> }</div>
+            {/* End of users Own video */}
 
-
+            {/* Peer connection streams */}
             <div className="other_video_container">            
                 {peers.map((peer, index) => (
                     <Video key={index} peer={peer} />  
                 ))}
             </div>
+            {/* End of peer connection streams */}
+
+            {/* Buttons Group */}
+            <div className="action_buttons">
+                <div 
+                    title="Toggle Mute" 
+                    onClick={togglMute} 
+                    className="mute_btn">
+                    {micMute ? <BsMicMuteFill/> : <BsMicFill/> }
+                </div>
+                <div 
+                    title="Toggle video" 
+                    onClick={toggleVideo} 
+                    className="vid_btn">
+                    {vidMute ? <BiVideoOff/> : <BsCameraVideo /> }
+                </div>
+            </div>
+            {/* End of Buttons group */}
+
         </div>
     )
 }
