@@ -47,42 +47,41 @@ export const Room = props => {
     const roomId = props.match.params.roomId;
 
     useEffect(() => {
-        socketRef.current = io.connect('/');
-        navigator.mediaDevices.getUserMedia({video:videoConstraints, audio:true})
-            .then(stream => {
-                userVideo.current.srcObject = stream;
-                socketRef.current.emit("join room", roomId);
-                socketRef.current.on("all users", users => {
-                    const peers = [];
-                    users.forEach(userId => {
-                        const peer = createPeer(userId, socketRef.current.id, stream);
-                        peersRef.current.push({
-                            peerId: userId,
-                            peer,
-                        })
-                        peers.push(peer);
-                    })
-                    set_peers(peers);
-                })
-
-
-                socketRef.current.on("user joined", payload => {
-                    const peer = addPeer(payload.signal, payload.callerId, stream);
+        socketRef.current = io.connect("/");
+        navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: true }).then(stream => {
+            userVideo.current.srcObject = stream;
+            socketRef.current.emit("join room", roomId);
+            socketRef.current.on("all users", users => {
+                const peers = [];
+                users.forEach(userId => {
+                    const peer = createPeer(userId, socketRef.current.id, stream);
                     peersRef.current.push({
-                        peerId: payload.callerId,
+                        peerId: userId,
                         peer,
                     })
+                    peers.push(peer);
+                })
+                set_peers(peers);
+            })
 
-                    set_peers(users => [...users, peer])
+            socketRef.current.on("user joined", payload => {
+                const peer = addPeer(payload.signal, payload.callerId, stream);
+                peersRef.current.push({
+                    peerId: payload.callerId,
+                    peer,
                 })
 
-                socketRef.current.on("receiving returned signal", payload => {
-                    const item = peersRef.current.find(p => p.peerId === payload.id);
-                    item.peer.signal(payload.signal);
-                });
+                set_peers(users => [...users, peer]);
             });
-    // eslint-disable-next-line 
-    },[]);
+
+            socketRef.current.on("receiving returned signal", payload => {
+                const item = peersRef.current.find(p => p.peerId === payload.id);
+                item.peer.signal(payload.signal);
+            });
+        })
+        //eslint-disable-next-line
+    }, []);
+
 
     const createPeer = (userToSignal, callerId, stream) => {
         const peer = new Peer({
