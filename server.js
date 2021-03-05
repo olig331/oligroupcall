@@ -1,53 +1,51 @@
-require("dotenv").config();
-const express = require('express');
-const http = require('http');
+require('dotenv').config();
+const express = require("express");
+const http = require("http");
 const app = express();
 const server = http.createServer(app);
-const socket = require('socket.io');
+const socket = require("socket.io");
 const io = socket(server);
 const path = require('path')
 
 const users = {};
+
 const socketToRoom = {};
 
-
-io.on("connection", socket => {
-    socket.on("join room", roomId => {
-        if(users[roomId]){
-            const length = users[roomId].length;
-            if(length === 4){
-                socket.emit("room is at full capacity");
+io.on('connection', socket => {
+    socket.on("join room", roomID => {
+        if (users[roomID]) {
+            const length = users[roomID].length;
+            if (length === 4) {
+                socket.emit("room full");
                 return;
             }
-            users[roomId].push(socket.id);
+            users[roomID].push(socket.id);
         } else {
-            users[roomId] = [socket.id];
+            users[roomID] = [socket.id];
         }
+        socketToRoom[socket.id] = roomID;
+        const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
 
-        socketToRoom[socket.id] = roomId;
-        const usersInTheRoom = users[roomId].filter(id => id !== socket.id);
-
-        socket.emit("all users", usersInTheRoom);
+        socket.emit("all users", usersInThisRoom);
     });
 
     socket.on("sending signal", payload => {
-        io.to(payload.userToSignal).emit("user joined", {signal:payload.signal, callerId: payload.callerId});
-
+        io.to(payload.userToSignal).emit('user joined', { signal: payload.signal, callerID: payload.callerID });
     });
 
     socket.on("returning signal", payload => {
-        io.to(payload.callerId).emit("receiving returned signal", {signal:payload.signal, id:socket.id});
+        io.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: socket.id });
     });
 
-
-    socket.on("disconnect", () => {
-        const roomId = socketToRoom[socket.id];
-        let room = users[roomId];
-        if(room){
+    socket.on('disconnect', () => {
+        const roomID = socketToRoom[socket.id];
+        let room = users[roomID];
+        if (room) {
             room = room.filter(id => id !== socket.id);
-            users[roomId] = room;
+            users[roomID] = room;
         }
     });
+
 });
 
 app.use(express.static(path.join(__dirname, "./client/build")));
